@@ -4,7 +4,7 @@ import _thread
 import time
 import os
 
-     # print out the code
+     # print out the code 
      # print out the limitations
      # Use the host part instead of "url host" 
      # fix the loop, do not save everything in one varibale // fixed
