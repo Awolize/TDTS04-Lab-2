@@ -14,6 +14,7 @@ import os
 bufferSize = 1024
 listenPort = 8080
 ipAddress = "127.0.0.1"
+BAD_WORDS = ["spongebob" "norrköping", "paris hilton", "paris+hilton", "britney spears", "britney+spears"]
 
 class ConnectionData:
     rawData = b""
@@ -42,7 +43,8 @@ class ConnectionData:
             self.rawData = self.strData.encode()
 
             # Search for words in the URL:
-            if ((self.strData.lower().find("spongebob") != -1) or (self.strData.lower().find("norrköping") != -1) or (self.strData.lower().find("paris hilton") != -1) or (self.strData.lower().find("paris+hilton") != -1) or (self.strData.lower().find("britney spears") != -1) or (self.strData.lower().find("britney+spears") != -1) or (self.strData.lower().find("norrk%c3%b6ping") != -1)):
+            strDataLower = self.strData.lower()
+            if ((strDataLower.find("spongebob") != -1) or (strDataLower.find("norrköping") != -1) or (strDataLower.find("paris hilton") != -1) or (strDataLower.find("paris+hilton") != -1) or (strDataLower.find("britney spears") != -1) or (strDataLower.find("britney+spears") != -1) or (strDataLower.find("norrk%c3%b6ping") != -1)):
                 self.ifRelocate = True
 
         except Exception as e:
@@ -91,11 +93,12 @@ class ConnectionData:
                     break
                 rawData += data
                 strData = str(rawData)
+                
                 if (len(rawData) > 20000000): # 20 mb
                     self.conn.sendall(rawData)
                     ifLarge = True
                     break
-                elif (((strData.lower().find("spongebob") != -1) or (strData.lower().find("norrköping") != -1) or (strData.lower().find("paris hilton") != -1) or (strData.lower().find("paris+hilton") != -1) or (strData.lower().find("britney spears") != -1) or (strData.lower().find("britney+spears") != -1))):
+                elif (BAD_WORDS in strData.lower()):
                     print("302 Found")
                     relocate = "HTTP/1.1 302 Found\r\nLocation: http://www.ida.liu.se/~TDTS04/labs/2011/ass2/error2.html\r\n\r\n"
                     webSocket.close()
