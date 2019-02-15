@@ -26,7 +26,7 @@ def SendReceive(conn, data):
         hostEndPos = url.find("/", hostStartPos + 3)
         host = url[hostStartPos+3:hostEndPos]
 
-        print("[>] %s" % host)
+        print("[>] %s" % url)
 
         r = requests.get(url)
         '''
@@ -56,15 +56,15 @@ def SendReceive(conn, data):
         webSocket.close()
         '''
 
-        print(r.headers['Content-Length'])
-        if r.headers['Content-Type'] == "text/html" and r.headers['Content-Length'] < 20000000:
+        print(r.headers['Content-Type'])
+        if "text" in r.headers['Content-Type']:
             filterAnswer = Filter(data.lower())
             if filterAnswer["success"] == False:
                 print(filterAnswer["message"])
                 Redirect(conn, 2)
                 return
 
-        conn.sendall(r.content)
+        conn.send(r.content)
     except Exception as e:
         print("[E] SendReceive")
         print(e)
@@ -82,8 +82,10 @@ def Redirect(conn, url=1):
 def Filter(data):
     for word in BAD_WORDS:
         if word in data:
+            print("Filter: Bad data")
             return {"success" : False, "message" : "Bad data"}
     return {"success" : True, "message" : "Good data"}
+
 
 def ProxyConnection(conn, data):
     try:
@@ -103,8 +105,8 @@ def MainLoop(s):
         try:
             conn, addr = s.accept()
             data = conn.recv(BUFFER_SIZE)
-            #ProxyConnection(conn, data)
-            _thread.start_new_thread(ProxyConnection,(conn, data)) 
+            ProxyConnection(conn, data)
+            #_thread.start_new_thread(ProxyConnection,(conn, data)) 
         except Exception as e:
             s.close()
             print("[E] mainLoop exception")
